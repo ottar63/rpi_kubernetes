@@ -1,0 +1,16 @@
+---
+pub_key: "{{lookup('file','~/.ssh/id_rsa.pub')}}"
+kubernetes_user: "{{lookup('env','USER')}}"
+time_zone: "Europe/Oslo"
+locale: "nb_NO.UTF-8"
+keyboard:  "no"
+hosts:
+    kube_master:
+        ip: 192.168.1.51
+    kube_node1:
+        ip: 192.168.1.52
+    kube_node2:
+        ip: 192.168.1.53
+    kube_node3:
+        ip: 192.168.1.54
+
