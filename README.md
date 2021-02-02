@@ -36,3 +36,5 @@ kube-node1    Ready    <none>                 24m   v1.20.2+k3s1
 kube-node2    Ready    <none>                 24m   v1.20.2+k3s1
 kube-master   Ready    control-plane,master   27m   v1.20.2+k3s1
 ```
+
+Next step is finding something to user the cluster for :-)
