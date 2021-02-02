@@ -1,0 +1,108 @@
+---
+- hosts: all
+  become: true
+  vars_files:
+    - vars.yml
+  tasks:
+
+    - name: disable password for ssh login
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+
+    - name: Edit cmdline.txt for kubernetes
+      replace:
+        path: /boot/cmdline.txt
+        regexp: '^([\w](?!.*\b{{ item }}\b).*)$'
+        replace: '\1 {{ item }}'
+      loop:
+        - "cgroup_enable=cpuset"
+        - "cgroup_memory=1"
+        - "cgroup_enable=memory"
+      register: reboot_needed
+
+    - name: Check Swap
+      shell: /bin/free -m | /bin/grep Swap | /bin/awk '{ print $2 }'
+      register: swap
+
+    - debug:
+        msg: "Swap: {{swap.stdout}}"
+
+    - name: Disable swapfile step 1
+      shell: /usr/sbin/dphys-swapfile swapoff
+      when: ( swap.stdout | int ) > 0
+
+    - name: Disable swapfile step 2
+      shell: /usr/sbin/dphys-swapfile uninstall
+      when: ( swap.stdout | int ) > 0
+
+    - name: Disable swapfile step 3
+      shell: /usr/sbin/update-rc.d dphys-swapfile remove
+      when: ( swap.stdout | int ) > 0
+
+    - name: Disable swapfile step 4
+      apt:
+        name: dphys-swapfile
+        state: absent
+        purge: yes
+      when: ( swap.stdout | int ) > 0
+
+
+    - name: Reboot
+      reboot:
+      when: reboot_needed is changed or (swap.stdout | int) > 0
+
+    - name: Flush iptables
+      iptables:
+        flush: True
+      changed_when: False
+
+    - name: Update iptables to legacy
+      alternatives:
+        name: iptables
+        path: /usr/sbin/iptables-legacy
+      
+    - name: Update ip6tables to legacy
+      alternatives:
+        name: ip6tables
+        path: /usr/sbin/ip6tables-legacy
+
+    - name: Edit hostsfile 
+      lineinfile:
+        path: /etc/hosts
+        line: "{{k3s_hosts[item].ip}} {{k3s_hosts[item].hostname}}"
+      with_items: "{{k3s_hosts}}"
+        
+    - name: Install K3s on master
+      shell: curl -sfL https://get.k3s.io | sh -
+      args:
+        creates: /usr/local/bin/k3s    
+      when: ansible_hostname == "kube-master"
+
+    - name: Wait for node-token to be created
+      wait_for:
+        path: /var/lib/rancher/k3s/server/node-token
+      when: ansible_hostname == "kube-master"
+
+    - name: Get join token for nodes
+      slurp:
+        path: /var/lib/rancher/k3s/server/node-token
+      register: join_token
+      when: ansible_hostname == "kube-master"
+
+    - name: set join_token in hostvars
+      set_fact: 
+        token: "{{join_token.content | b64decode | regex_replace('\n', '')}}"
+      when: ansible_hostname == "kube-master"
+
+    - name: Install K3s on nodes
+      shell: curl -sfL https://get.k3s.io | K3S_URL=https://192.168.1.51:6443 \
+        K3S_TOKEN={{hostvars['kube-master'].token}}  sh -
+      args:
+        creates: /usr/local/bin/k3s
+      when: ansible_hostname != "kube-master"
+
+  handlers:
+    - name: Reboot server
+      reboot:

@@ -4,13 +4,17 @@ kubernetes_user: "{{lookup('env','USER')}}"
 time_zone: "Europe/Oslo"
 locale: "nb_NO.UTF-8"
 keyboard:  "no"
-hosts:
+k3s_hosts:
     kube_master:
+        hostname: kube-master
         ip: 192.168.1.51
     kube_node1:
+        hostname: kube-node1
         ip: 192.168.1.52
     kube_node2:
+        hostname: kube-node2
         ip: 192.168.1.53
     kube_node3:
+        hostname: kube-node3
         ip: 192.168.1.54
 
