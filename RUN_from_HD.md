@@ -17,11 +17,11 @@ As of now the Raspberry PI 4 is not able to boot from  HDD, but since it is plan
 Boot partition on the HDD , so it can be moved later when bootloaded is updated with HDD boot.
 Make boot partition ( in Buster boot partition is increased  to 256 MB )
 ```
-(parted) mkpart primary fat32 0% 104M
+(parted) mkpart primary fat32 0% 256M
 ```
 Make root partition
 ```
-(parted) mkpart primary ext4 104M 100%
+(parted) mkpart primary ext4 256M 100%
 (parted) quit
 ```
 
