@@ -13,8 +13,6 @@ $sudo parted /dev/sda
 (parted) mktable msdos
 ```
 Answer  Yes on warning that existing disk label on dev/sda will be destroyed
-As of now the Raspberry PI 4 is not able to boot from  HDD, but since it is planed in the future I create an
-Boot partition on the HDD , so it can be moved later when bootloaded is updated with HDD boot.
 Make boot partition ( in Buster boot partition is increased  to 256 MB )
 ```
 (parted) mkpart primary fat32 0% 256M
