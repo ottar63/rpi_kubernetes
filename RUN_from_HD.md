@@ -13,6 +13,7 @@ $sudo parted /dev/sda
 (parted) mktable msdos
 ```
 Answer  Yes on warning that existing disk label on dev/sda will be destroyed
+
 Make boot partition ( in Buster boot partition is increased  to 256 MB )
 ```
 (parted) mkpart primary fat32 0% 256M
