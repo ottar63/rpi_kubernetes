@@ -37,6 +37,6 @@ kube-node2    Ready    <none>                 24m   v1.20.2+k3s1
 kube-master   Ready    control-plane,master   27m   v1.20.2+k3s1
 ```
 
-If you want to run your master from HD insted of SD card, you can use the instruction [here]((RUN_from_HD.md)
+If you want to run your master from HD insted of SD card, you can use the instruction [here](RUN_from_HD.md)
 
 Next step is finding something to user the cluster for :-)
