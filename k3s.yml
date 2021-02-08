@@ -75,7 +75,7 @@
       with_items: "{{k3s_hosts}}"
         
     - name: Install K3s on master
-      shell: curl -sfL https://get.k3s.io | sh -
+      shell: curl -sfL https://get.k3s.io | sh - --write-kubeconfig-mode 644
       args:
         creates: /usr/local/bin/k3s    
       when: ansible_hostname == "kube-master"
